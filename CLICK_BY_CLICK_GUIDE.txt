@@ -1,0 +1,109 @@
+33° TIME TRACKER — CLICK‑BY‑CLICK DEPLOYMENT
+
+PREREQS (10–20 minutes)
+1) Create accounts:
+   - supabase.com (free tier OK)
+   - vercel.com (free tier OK)
+   - github.com (free repo)
+
+2) Download this project ZIP from ChatGPT and unzip it on your computer.
+
+A) SUPABASE: PROJECT + AUTH (6–8 minutes)
+1) Go to https://supabase.com → Dashboard → New project.
+2) Choose a name (e.g., 33d-time) → Create project.
+3) Left sidebar → SQL Editor → “+ New query”.
+4) Paste the contents of /supabase/schema.sql from this project.
+5) Click “Run”. You should see “Success”.
+6) Left sidebar → Authentication → Providers → Email:
+   - Enable “Email” provider (magic link/OTP).
+   - (Optional) Turn off “Confirm email” to speed sign-in.
+7) Authentication → Users → “Add user”:
+   - Add yourself (admin) with your email.
+8) Left sidebar → Table editor → public → profiles → “Insert row”:
+   - id = paste your user UUID (from Auth → Users → click your user → copy UUID)
+   - display_name = Your Name
+   - role = admin
+   - is_temp = false
+   - Save
+
+B) SUPABASE: SEED MASTER DATA (Customers & Functions) (3–5 minutes)
+1) Table editor → customers → “Insert row”:
+   - name = Your first customer; active = true → Save.
+   - Repeat for all customers you want available.
+2) Table editor → functions → “Insert row”:
+   - Add your global list (Install, QA, Delivery, etc.).
+
+C) GITHUB: CREATE REPO & ADD CODE (3–5 minutes)
+1) GitHub → New repository → Name: 33d-time-tracker → Create repository.
+2) Click “Upload files” → drag all files from the unzipped folder → Commit changes.
+
+D) VERCEL: DEPLOY (6–8 minutes)
+1) Vercel → “Add New…” → Project → Import GitHub repo 33d-time-tracker.
+2) Build settings: accept defaults for Next.js.
+3) Add Environment Variables (click “Environment Variables”):
+   - NEXT_PUBLIC_SUPABASE_URL = (Supabase → Project Settings → API → Project URL)
+   - NEXT_PUBLIC_SUPABASE_ANON_KEY = (Supabase → Project Settings → API → anon public key)
+   - SUPABASE_SERVICE_ROLE_KEY = (Supabase → Project Settings → API → service_role key)  **server-side only**
+4) Click “Deploy”. When finished, click the production URL (e.g., https://33d-time-tracker-xyz.vercel.app).
+
+E) MAKE YOURSELF ADMIN (if not already)
+1) Supabase → Auth → Users → copy your user UUID.
+2) Table editor → profiles → insert/update row with:
+   - id = your UUID, role = admin, display_name set.
+
+F) TEST EMPLOYEE FLOW (2–3 minutes)
+1) Open your app URL.
+2) Enter your email → “Send Sign-In Code” → use the emailed code/link.
+3) On /clock:
+   - Pick **Customer** and **Function** from dropdowns.
+   - Tap **Start**. Do some work. Tap **Stop**.
+4) Click **History** → confirm the entry and the **rounded minutes**.
+
+G) ADD EMPLOYEES (2–4 minutes each)
+Permanent employees
+1) Supabase → Auth → Users → “Invite user” → their email.
+2) Table editor → profiles → insert row: id=their UUID, display_name=Full Name, role=employee.
+
+Temporary workers (with temporary logins)
+- Use any email they control (personal OK) OR company alias (temp001@yourdomain.com).
+- When finished, Auth → Users → select → “Deactivate” (or Delete). Optionally set profiles.is_temp = true, expires_at.
+(Using email magic links keeps things simple and auditable.)
+
+H) ADMIN MASTER DATA (1–2 minutes)
+1) App → **Admin** (top-right of Clock) → Customers/Functions:
+   - Add new, deactivate/reactivate as needed.
+
+I) EXPORTS → EXCEL (Power Query)
+1) App → **Admin** → click one of:
+   - **All entries (CSV)**
+   - **Hours by customer (CSV)**
+   - **Hours by customer × function (CSV)**
+2) Copy the URL.
+3) Excel → Data → Get Data → From Web → paste URL → OK → Load.
+4) Refresh anytime via **Data → Refresh All**.
+
+J) QUICKBOOKS (CSV Import to start)
+1) Download the CSV you need.
+2) In your importer (SaasAnt/Transaction Pro), map columns:
+   - Customer → CustomerRef
+   - Function → Service Item
+   - Employee → EmployeeRef
+   - Start/End or Rounded Minutes → Duration
+   - Billable = True
+3) Import, then run “Hours by customer” to verify totals.
+
+K) BRANDING
+1) Edit /app/globals.css → change `--primary` to your brand color.
+2) Commit change on GitHub → Vercel auto‑deploys.
+
+L) NOTES / GUARDRails
+- 15‑minute rounding is applied to **duration** for fairness.
+- DB prevents two open shifts for one user.
+- Admins can view all entries; employees only see their own.
+- Single timezone (timestamps stored UTC, displayed in user locale).
+- Offline: add PWA caching later if you need full offline; the UI already prevents double starts and recovers if network blips.
+
+TROUBLESHOOTING
+- Sign‑in email not arriving? Check Auth → SMTP settings or try another email.
+- “permission denied” errors? Ensure you ran schema.sql and created your profile row.
+- CSV empty? Add a few entries; the views populate from time_entries.

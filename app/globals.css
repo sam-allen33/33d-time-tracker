@@ -1,0 +1,28 @@
+:root {
+  --primary: #0a5fff;
+  --danger: #ff3b30;
+  --bg: #0f172a;
+  --card: #111827;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Cantarell, Noto Sans, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+}
+a { color: var(--primary); text-decoration: none; }
+.container { max-width: 800px; margin: 0 auto; padding: 16px; }
+.card { background: var(--card); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.select, .input, .button { font-size: 16px; padding: 12px 14px; border-radius: 12px; border: 1px solid #374151; background:#0b1220; color: var(--text); }
+.button { background: var(--primary); border: none; cursor: pointer; }
+.button.danger { background: var(--danger); }
+.button.muted { background: #1f2937; }
+.h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+.h2 { font-size: 20px; font-weight: 600; margin: 16px 0 8px; color: var(--muted); }
+.small { color: var(--muted); font-size: 14px; }
+.divider { height: 1px; background: #1f2937; margin: 16px 0; }
+.tag { background: #1f2937; padding: 4px 8px; border-radius: 999px; font-size: 12px; color: var(--muted); }
