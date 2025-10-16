@@ -7,17 +7,27 @@ export default function Page() {
   const [status, setStatus] = useState<string>('');
 
   useEffect(() => {
+    // Handle magic-link return + auto-redirect if already signed in
+    const sub = supabase.auth.onAuthStateChange((ev) => {
+      if (ev.data?.session) window.location.href = '/clock';
+      if (ev.event === 'SIGNED_IN') window.location.href = '/clock';
+    });
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) window.location.href = '/clock';
     });
+    return () => sub.data.subscription.unsubscribe();
   }, []);
 
   async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault();
     setStatus('Sending sign-in link...');
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/clock' } });
-    if (error) setStatus('Error: ' + error.message);
-    else setStatus('Check your email for a 6-digit code or link.');
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: siteUrl + '/clock' },
+    });
+    setStatus(error ? 'Error: ' + error.message : 'Check your email.');
   }
 
   return (
@@ -25,10 +35,12 @@ export default function Page() {
       <h1 className="h1">33° Time Tracker</h1>
       <p className="small">Sign in with your email to continue.</p>
       <form onSubmit={sendMagicLink} className="row" style={{ marginTop: 12 }}>
-        <input className="input" type="email" placeholder="you@company.com" value={email} onChange={(e)=>setEmail(e.target.value)} required />
+        <input className="input" type="email" placeholder="you@company.com"
+               value={email} onChange={(e)=>setEmail(e.target.value)} required/>
         <button className="button" type="submit">Send Sign-In Code</button>
       </form>
       <div className="small" style={{ marginTop: 8 }}>{status}</div>
     </div>
   );
 }
+
